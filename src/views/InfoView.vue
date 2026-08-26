@@ -12,7 +12,7 @@
         <div class="about-paragraphs">
           <div class="text-block">
             <p>
-              My name is <span class="highlight">Marco</span>, I'm 28 years old and from Abano Terme, in the Veneto region of Italy. I work as a <span class="highlight">post-doctoral researcher</span> in geology at the University of Siena.
+              My name is <span class="highlight">Marco</span>, I'm 29 years old and from Abano Terme, in the Veneto region of Italy. I work as a <span class="highlight">post-doctoral researcher</span> in geology at the University of Siena.
             </p>
             <p>
               Since <span class="highlight">2017</span>, I've been spending much of my free time <span class="highlight">underground</span>, exploring caves and studying their environments. My passion for <span class="highlight">photography</span> actually came first, rooted in photographing the natural world, and over the years it has merged naturally with my love for <span class="highlight">geology and speleology</span>. Caves are among the last truly <span class="highlight">unexplored spaces</span> on Earth, and <span class="highlight">documenting</span> them means painting with light in a place where it has never naturally existed.
