@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../firebase.js'
 import { useRouter } from 'vue-router'
@@ -14,6 +14,39 @@ async function loadItems() {
 
 onMounted(loadItems)
 
+// Estrae la "chiave sito" da un ID documento, togliendo un eventuale suffisso numerico
+// finale (es. "lapa-do-penhasco-3" -> "lapa-do-penhasco"). Questo permette di raggruppare
+// più foto/item della stessa grotta sotto un unico pin.
+function getSiteKey(id) {
+  return id.replace(/-\d+$/, '')
+}
+
+// Posizioni FISSE dei pin sulla mappa, scelte a mano per riprodurre il pattern del
+// mockup di design (che non era calcolato da coordinate GPS reali). Le coordinate qui
+// sotto sono nel sistema interno dell'SVG (stesso usato dai <path> della mappa), non
+// derivano più da latitude/longitude. Se aggiungi una nuova grotta, aggiungi qui la sua
+// chiave sito con una posizione scelta a mano dentro la sagoma corretta.
+const SITE_POSITIONS = {
+  // Gruppo Goiás (sagoma piccola a sinistra):
+  // Penhasco, Funil e Borá leggermente più distanziati verticalmente, per non
+  // sovrapporsi (raggio pin 11 richiede almeno ~22-25px di distanza).
+  'lapa-do-penhasco': { x: 1090, y: 758 },
+  'cachoeira-do-funil': { x: 1105, y: 780 },
+  'caverna-do-bora-quatro': { x: 1120, y: 802 },
+
+  // Gruppo Bahia (sagoma grande a destra):
+  // Convento, Barriguda e Boa Vista più ravvicinate sulla linea verticale.
+  // Ossos spostato leggermente più a destra. Brejões più ravvicinato a Ossos
+  // sulla linea orizzontale.
+  'gruta-do-convento': { x: 1345, y: 630 },
+  'toca-da-barriguda': { x: 1330, y: 650 },
+  'toca-da-boa-vista': { x: 1310, y: 665 },
+  'toca-dos-ossos': { x: 1275, y: 710 },
+  'lapa-dos-brejoes': { x: 1253, y: 720 },
+  'gruta-lapa-doce': { x: 1270, y: 780 },
+  'lapa-do-bode': { x: 1295, y: 805 }
+}
+
 function geoToSvg(lat, lng) {
   const latMax = 5.3
   const latMin = -33.8
@@ -23,12 +56,52 @@ function geoToSvg(lat, lng) {
   const y = ((latMax - lat) / (latMax - latMin)) * 1658
   return { x, y }
 }
+
+// Raggruppa gli item per "sito" (grotta), usando le posizioni fisse quando disponibili.
+// Se una grotta non ha ancora una posizione fissa definita in SITE_POSITIONS, usa come
+// fallback il calcolo da coordinate GPS reali (così il sito non si rompe se aggiungi
+// una nuova grotta e dimentichi di definirne la posizione a mano).
+const groupedPins = computed(() => {
+  const groups = new Map()
+
+  for (const item of items.value) {
+    const siteKey = getSiteKey(item.id)
+
+    if (!groups.has(siteKey)) {
+      let position = SITE_POSITIONS[siteKey]
+
+      if (!position) {
+        const lat = item.coordinates?.latitude
+        const lng = item.coordinates?.longitude
+        if (lat == null || lng == null) continue
+        position = geoToSvg(lat, lng)
+      }
+
+      groups.set(siteKey, {
+        siteKey,
+        x: position.x,
+        y: position.y,
+        items: []
+      })
+    }
+    groups.get(siteKey).items.push(item)
+  }
+
+  return Array.from(groups.values())
+})
+
+function onPinClick(group) {
+  // Per ora porta al dettaglio del primo item del gruppo.
+  // Quando sarà pronta la vista "galleria multi-foto", questa navigazione andrà aggiornata.
+  const firstItem = group.items[0]
+  router.push({ name: 'itemDetail', params: { id: firstItem.id } })
+}
 </script>
 
 <template>
   <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 0; overflow: hidden;">
     <svg
-      viewBox="-400 -200 1600 1500"
+      viewBox="600 435 1085 710"
       preserveAspectRatio="xMidYMid meet"
       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
       xmlns="http://www.w3.org/2000/svg"
@@ -38,33 +111,38 @@ function geoToSvg(lat, lng) {
       <path d="M838.187 988.829L914.98 1022.53C914.98 1022.53 926.647 1014.57 929.326 1011.91C932.005 1009.25 938.38 997.602 940.078 996.253C941.777 994.904 945.094 991.61 954.054 990.017C963.015 988.423 981.662 984.178 981.662 984.178C981.662 984.178 984.267 985.856 986.043 985.529C987.818 985.201 989.26 984.234 989.644 983.768C990.027 983.303 1000.21 975.806 1006.25 975.425C1012.29 975.043 1015.38 973.875 1029.93 976.534C1044.47 979.192 1042.44 979.943 1051.32 977.583C1060.2 975.224 1062.24 973.409 1062.24 973.409C1062.24 973.409 1069.7 969.806 1070.95 966.539L1071.22 947.058C1071.22 947.058 1071.18 946.717 1070.88 946.63C1070.59 946.543 1067.76 945.884 1066.63 944.77C1065.5 943.656 1058.53 938.159 1069.42 927.009C1080.31 915.858 1078.7 910.486 1076.78 907.452C1074.86 904.417 1064.78 898.346 1068.3 889.353C1068.3 889.353 1071.42 883.973 1071.52 882.613C1071.61 881.252 1072.48 877.94 1066.75 877.09C1061.01 876.24 1040.2 876.598 1040.2 876.598C1040.2 876.598 1035.89 876.141 1032.92 873.099C1032.92 873.099 1032.81 847.915 1038.52 846.255C1044.23 844.595 1065.84 845.009 1072.59 846.122C1079.33 847.234 1082.7 848.705 1080.43 864.173C1080.43 864.173 1080.37 866.598 1081.14 866.22C1081.14 866.22 1083 865.894 1083.08 865.894C1083.16 865.895 1092.96 865.286 1092.62 854.01C1092.28 842.735 1083.56 823.103 1104.51 821.81C1104.51 821.81 1105.85 812.078 1111.52 810.12C1111.52 810.12 1114.15 808.565 1120.53 813.674C1126.9 818.783 1130.07 818.466 1131.9 817.161C1133.72 815.855 1134.44 810.245 1133.2 805.94C1131.97 801.634 1129.74 795.194 1129.74 795.194C1129.74 795.194 1117.72 776.006 1119.34 767.553C1120.97 759.099 1126.17 733.996 1126.17 733.996C1126.17 733.996 1126.5 729.958 1124.26 730.409C1122.02 730.861 1117.5 730.955 1098.67 742.261C1098.67 742.261 1085.53 744.759 1083.24 745.806C1080.95 746.853 1069.59 754.044 1057.32 752.295C1057.32 752.295 1049.69 750.75 1047.04 749.285C1044.39 747.819 1031.93 743.133 1026.38 745.773C1026.38 745.773 1022.49 746.893 1020.6 750.92C1018.71 754.948 1011.05 758.167 1009.79 746.119C1009.79 746.119 1010.13 739.486 1009.35 737.353C1008.56 735.22 1003.86 726.04 1003.86 726.04C1003.86 726.04 1001.58 725.045 1000.05 726.48C1000.05 726.48 998.766 729.278 997.057 732.073C995.348 734.868 992.862 740.04 992.689 740.592C992.516 741.144 990.563 748.446 985.157 748.874C985.157 748.874 982.626 748.686 975.432 745.23C975.432 745.23 967.264 742.405 966.131 741.376C964.999 740.347 953.458 736.944 953.458 736.944C953.458 736.944 946.381 734.893 943.75 725.217L920.18 796.426C920.18 796.426 916.349 823.921 907.974 826.242C899.598 828.563 893.42 830.645 890.238 838.577C887.057 846.508 883.999 866.352 864.428 869.867C864.428 869.867 859.234 870.127 845.307 892.784C845.307 892.784 843.768 901.11 839.649 904.398C835.531 907.686 821.061 923.66 820.81 940.759C820.81 940.759 820.714 942.247 822.648 949.11C824.582 955.973 827.869 962.506 828.91 970.298C828.91 970.298 829.545 975.706 835.533 976.558C841.521 977.41 839.273 984.668 839.272 984.795C839.271 984.923 838.059 989.04 838.059 989.04L838.187 988.829Z" fill="#E1731D"/>
       <path d="M1121.82 713.99C1121.82 713.99 1129.47 728.538 1129.39 733.174L1129.31 736.691L1123.1 767.745C1123.1 767.745 1121.94 773.06 1126.19 781.453C1130.43 789.846 1133.11 794.322 1133.11 794.322C1133.11 794.322 1136.51 803.795 1136.83 805.513C1137.15 807.232 1137.23 808.71 1137.15 809.829C1137.07 810.949 1136.35 825.376 1137.15 827.375C1137.95 829.373 1152.08 824.817 1154.84 820.66C1157.6 816.504 1191.02 794.562 1197.5 794.123C1203.99 793.683 1227.6 791.725 1221.55 805.913C1221.55 805.913 1219.71 816.584 1235.2 812.227C1250.69 807.871 1259.81 815.744 1259.81 815.744C1259.81 815.744 1279.58 829.453 1287.95 829.653C1296.31 829.853 1306.36 831.571 1309.6 836.487C1309.6 836.487 1318.4 843.961 1319.04 846.559C1319.68 849.156 1322.49 859.388 1332.13 852.354C1332.13 852.354 1327.41 849.556 1346.26 854.712C1346.26 854.712 1404.97 865.183 1364.27 895.597C1364.27 895.597 1362.51 902.951 1362.75 904.87C1362.75 904.87 1350.1 911.104 1350.94 916.06C1351.82 921.016 1352.14 925.412 1366.15 942.318C1366.15 942.318 1365.43 951.206 1384.6 958C1384.6 958 1401.95 942.271 1401.99 940.232C1406.14 880.502 1405.91 897.381 1412.19 877.478C1413.79 872.402 1415.46 859.84 1415.22 857.442C1415.06 856.043 1412.95 855.93 1411.06 838.918C1409.94 817.576 1409.69 799.975 1409.17 787.505C1409.17 787.505 1405.77 774.274 1407.29 765.707C1410.93 757.513 1415.97 736.848 1415.97 736.848C1415.97 736.848 1414.08 733.824 1418.78 727.379C1419.94 726.22 1424.46 726.779 1425.34 728.178C1428.1 732.774 1433.94 742.886 1440.27 737.73C1440.27 737.73 1455.99 721.056 1467 692.24C1467 692.24 1455.23 689.251 1451.15 681.337C1451.15 681.337 1431.7 657.837 1441.95 651.882C1441.95 651.882 1452.79 649.324 1454.31 646.767C1454.31 646.767 1458.04 631.1 1454.83 626.144C1451.63 621.188 1447.31 619.589 1447.15 616.592C1446.99 613.594 1436.94 592.652 1434.7 590.414C1432.46 588.176 1429.26 585.538 1419.02 581.621C1408.77 577.745 1398.08 572.269 1395.88 569.511C1393.64 566.714 1384.64 576.306 1384.64 576.306C1384.64 576.306 1374.19 590.854 1363.83 591.213C1363.83 591.213 1360.03 609.558 1339.01 604.002C1339.01 604.002 1339.9 584.459 1324.77 576.346C1324.77 576.346 1312.84 577.705 1300.8 594.73C1300.8 594.73 1282.59 600.166 1280.42 602.284C1280.42 602.284 1269.18 611.196 1257.53 607.719C1245.89 604.242 1230.4 599.606 1227.12 601.924C1223.84 604.242 1224.6 609.078 1224.6 609.078C1224.6 609.078 1239.44 644.888 1191.46 654.76C1191.46 654.76 1162.68 678.38 1147.76 642.37C1147.76 642.37 1145.64 640.412 1139.23 644.448C1132.83 648.485 1114.1 676.821 1114.1 676.821C1114.1 676.821 1113.46 678.38 1115.42 679.139C1117.38 679.899 1116.18 681.417 1128.75 684.375C1128.75 684.375 1135.59 687.412 1128.83 694.486C1128.83 694.486 1127.91 695.765 1131.03 698.603C1134.15 701.441 1122.26 711.472 1122.26 711.472C1122.26 711.472 1121.62 712.471 1121.9 714.11L1121.82 713.99Z" fill="#E1731D"/>
 
-      <!-- Pin per ogni item -->
-      <g v-for="(item, index) in items" :key="item.id">
+      <!-- Pin raggruppati per grotta, con posizioni fisse -->
+      <g v-for="(group, index) in groupedPins" :key="index">
         <g
-          v-if="item.coordinates?.latitude && item.coordinates?.longitude"
           style="cursor: pointer;"
-          @click="router.push({ name: 'itemDetail', params: { id: item.id } })"
+          @click="onPinClick(group)"
         >
           <circle
-            :cx="geoToSvg(item.coordinates.latitude, item.coordinates.longitude).x"
-            :cy="geoToSvg(item.coordinates.latitude, item.coordinates.longitude).y"
-            r="14"
+            :cx="group.x"
+            :cy="group.y"
+            r="11"
             fill="white"
             stroke="#E1731D"
             stroke-width="1.5"
           />
           <text
-            :x="geoToSvg(item.coordinates.latitude, item.coordinates.longitude).x"
-            :y="geoToSvg(item.coordinates.latitude, item.coordinates.longitude).y + 4"
+            :x="group.x"
+            :y="group.y + 4"
             text-anchor="middle"
             font-family="Jura"
             font-weight="700"
-            font-size="10"
+            font-size="13"
             fill="#E1731D"
-          >{{ index + 1 }}</text>
+          >{{ group.items.length }}</text>
         </g>
       </g>
     </svg>
+
+    <!-- Crediti in basso a destra -->
+    <div style="position: fixed; bottom: 1.5rem; right: 1.5rem; text-align: right; font-family: 'Jura', sans-serif; font-size: 0.7rem; letter-spacing: 0.03em; color: #a3a3a3; line-height: 1.5; z-index: 1;">
+      <p style="margin: 0;">Speleo_Archive</p>
+      <p style="margin: 0;">Designed by Paola Fioraso</p>
+    </div>
   </div>
 </template>
 
