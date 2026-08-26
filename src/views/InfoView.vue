@@ -44,6 +44,11 @@
       </div>
 
     </main>
+
+    <div class="info-footer">
+      <p>Speleo_Archive</p>
+      <p>Designed by Paola Fioraso</p>
+    </div>
   </div>
 </template>
 
@@ -140,5 +145,24 @@
 .credits-label {
   font-weight: 500;
   color: #afafaf;
+}
+
+/* Footer: stesso stile e posizione usati in Archive/Map/Map Zoom */
+.info-footer {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  text-align: center;
+  font-family: 'Jura', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  color: #a3a3a3;
+  line-height: 1.6;
+}
+
+.info-footer p {
+  margin: 0;
 }
 </style>
