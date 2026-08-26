@@ -44,11 +44,6 @@
       </div>
 
     </main>
-
-    <div class="info-footer">
-      <p>Speleo_Archive</p>
-      <p>Designed by Paola Fioraso</p>
-    </div>
   </div>
 </template>
 
@@ -65,15 +60,15 @@
   box-sizing: border-box;
 }
 
-/* Allineamento centrale assoluto della griglia complessiva */
+/* Allineato a sinistra come il menu, centrato sull'asse Y */
 .info-layout {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  position: absolute;
-  left: 50%;
-  top: 55%;
-  transform: translate(-50%, -50%);
+  position: fixed;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
   width: auto;
 }
 
@@ -83,7 +78,7 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 40px; /* MISURA UNIFORME: Spazio identico tra titolo "About" -> testo e titolo "Credits" -> testo */
+  gap: 40px;
 }
 
 /* Contenitore specifico per affiancare i due paragrafi di About */
@@ -91,34 +86,34 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 45px; /* Spazio controllato tra la prima e la seconda colonna di testo */
+  gap: 45px;
 }
 
-/* Distanza macroscopica tra la sezione di About e quella dei Credits */
+/* Distanza tra la sezione About e Credits */
 .credits-group {
-  margin-left: 140px; 
+  margin-left: 320px;
 }
 
-/* Titoli delle sezioni (Jura) - colore #afafaf */
+/* Titoli delle sezioni (Jura) - stessa dimensione del menu (24px) */
 .info-title {
   font-family: 'Jura', sans-serif;
   font-weight: 400;
-  font-size: 21px;
+  font-size: 24px;
   color: #afafaf;
   margin: 0;
   line-height: 1.2;
   flex-shrink: 0;
-  width: 85px; /* Larghezza fissa del tag di intestazione */
+  width: 85px;
 }
 
-/* Blocchi di testo con larghezza ristretta per forzare i capi a capo esatti della reference */
+/* Blocchi di testo: 16px, larghezza ricalibrata su "CAVING CLUBS: Gruppo Speleologico" */
 .text-block {
-  width: 225px;
+  width: 290px;
   flex-shrink: 0;
   font-family: 'Aeonik', sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #343434; /* MODIFICATO: da #333333 a #343434 */
+  font-size: 16px;
+  line-height: 1.2;
+  color: #343434;
 }
 
 .text-block p {
@@ -131,37 +126,19 @@
 
 /* Evidenziazioni in grigio chiaro - colore #afafaf */
 .highlight {
-  color: #afafaf; /* MODIFICATO: da #B3B3B3 a #afafaf */
+  color: #afafaf;
   font-weight: inherit;
 }
 
-/* Elenchi dei crediti */
+/* Elenchi dei crediti: stessa larghezza e stessa dimensione delle colonne di About */
 .credits-list {
-  font-size: 14px;
-  line-height: 1.55;
+  width: 290px;
+  font-size: 16px;
+  line-height: 1.2;
 }
 
 .credits-label {
   font-weight: 500;
-  color: #afafaf; /* MODIFICATO: da #B3B3B3 a #afafaf */
-}
-
-/* Footer: stesso stile e posizione di MapView.vue */
-.info-footer {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  text-align: center;
-  font-family: 'Jura', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.03em;
-  color: #a3a3a3;
-  line-height: 1.6;
-}
-
-.info-footer p {
-  margin: 0;
+  color: #afafaf;
 }
 </style>
