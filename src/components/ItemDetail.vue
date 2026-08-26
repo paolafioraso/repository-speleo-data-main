@@ -25,7 +25,6 @@ function formatDescription(text) {
 
 const formattedDescription = computed(() => formatDescription(item.value?.description))
 
-// Estrae il numero finale dall'id (es. "toca-da-barriguda-2" -> 2) per ordinare le miniature
 function extractPhotoNumber(id) {
 	const match = id.match(/-(\d+)$/)
 	return match ? parseInt(match[1], 10) : 0
@@ -40,7 +39,6 @@ async function loadItem() {
 			const loadedItem = { id: docSnap.id, ...docSnap.data() }
 			item.value = loadedItem
 
-			// Trova tutte le foto della stessa grotta (stesso titolo)
 			const q = query(collection(db, 'items'), where('title', '==', loadedItem.title))
 			const snapshot = await getDocs(q)
 			relatedItems.value = snapshot.docs
@@ -57,7 +55,6 @@ async function loadItem() {
 	}
 }
 
-// Sostituisce la foto grande con quella cliccata, senza cambiare pagina/URL
 function selectPhoto(photoItem) {
 	item.value = photoItem
 }
@@ -67,7 +64,6 @@ onMounted(loadItem)
 
 <template>
 	<div class="fixed inset-0 z-50 bg-white flex">
-		<!-- X per chiudere in alto a destra sulla foto-->
 		<button
 			style="position: fixed; top: 1.5rem; right: 1.5rem; z-index: 60; background: none; border: none; cursor: pointer; font-size: 30px; color: #fff; font-family: 'Jura', sans-serif; font-weight: 700;"
 			@click="router.back()"
@@ -76,20 +72,17 @@ onMounted(loadItem)
 		<!-- Colonna sinistra -->
 		<div class="w-1/3 flex flex-col justify-between overflow-y-auto" style="padding: 2rem 3rem 2rem 3rem;">
 			<div>
-				<!-- Titolo: Jura -->
 				<h1
-					style="font-family: 'Jura', sans-serif; font-weight: 600; font-size: 2.3rem; letter-spacing: 0.02em; margin: 0 0 2rem 0; white-space: nowrap; display: inline-block;"
+					style="font-family: 'Jura', sans-serif; font-weight: 600; font-size: 32px; letter-spacing: 0.02em; margin: 0 0 2rem 0; white-space: nowrap; display: inline-block;"
 				>
 					{{ item?.title }}
 				</h1>
-				<!-- Descrizione: Aeonik, larghezza FISSA uguale per tutte le grotte -->
 				<p
 					v-html="formattedDescription"
-					style="font-family: 'Aeonik', sans-serif; font-size: 1rem; line-height: 1.35; color: #262626; margin: 0; word-wrap: break-word; max-width: 250px;"
+					style="font-family: 'Aeonik', sans-serif; font-size: 16px; line-height: 1.2; color: #262626; margin: 0; word-wrap: break-word; max-width: 290px;"
 				></p>
 			</div>
 
-			<!-- Dati in basso a sinistra: Jura -->
 			<div>
 				<div style="font-family: 'Jura', sans-serif; font-size: 0.7rem; letter-spacing: 0.03em; color: #737373; line-height: 1.6;">
 					<p v-if="item?.location" style="margin: 0;">LOCATION: {{ item.location }}</p>
@@ -101,7 +94,6 @@ onMounted(loadItem)
 					<p v-if="item?.model" style="margin: 0;">MODEL: {{ item.model }}</p>
 				</div>
 
-				<!-- Miniature: solo se la grotta ha più foto -->
 				<div v-if="relatedItems.length > 1" style="display: flex; gap: 0.5rem; margin-top: 1.25rem;">
 					<img
 						v-for="photo in relatedItems"
