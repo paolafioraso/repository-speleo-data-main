@@ -19,8 +19,8 @@ onMounted(() => {})
   <Loading v-if="global.loading > 0" />
   <Dialog />
 
-  <!-- Nav e Auth nascosti nella pagina dettaglio -->
-  <template v-if="route.name !== 'itemDetail'">
+  <!-- Nav e Auth nascosti nella pagina dettaglio e in Map Zoom -->
+  <template v-if="route.name !== 'itemDetail' && route.name !== 'map-zoom'">
     <nav style="position: fixed; top: 1.5rem; left: 1.5rem; z-index: 40; display: flex; align-items: center; gap: 2rem; font-family: 'Jura', sans-serif; font-weight: 700; font-size: 18px; background: transparent;">
       <router-link :to="{ name: 'home' }" style="color: #343434; text-decoration: none;" active-class="nav-active">Archive</router-link>
       <router-link :to="{ name: 'map' }" style="color: #343434; text-decoration: none;" active-class="nav-active">Map</router-link>
