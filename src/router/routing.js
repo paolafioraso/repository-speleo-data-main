@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import ArchiveView from '../views/ArchiveView.vue'
 import DetailView from '../views/DetailView.vue'
 import MapView from '../views/MapView.vue'
 import InfoView from '../views/InfoView.vue'
@@ -9,7 +9,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: ArchiveView
   },
   {
     path: '/items/:id',
