@@ -69,8 +69,8 @@ onMounted(loadItem)
 			@click="router.back()"
 		>✕</button>
 
-		<!-- Colonna sinistra -->
-		<div class="w-1/3 flex flex-col justify-between overflow-y-auto" style="padding: 2rem 3rem 2rem 3rem;">
+		<!-- Colonna sinistra: 24px dall'alto, 20px da sinistra, come le x posizionate a destra -->
+		<div class="w-1/3 flex flex-col justify-between overflow-y-auto" style="padding: 24px 3rem 2rem 20px;">
 			<div>
 				<h1
 					style="font-family: 'Jura', sans-serif; font-weight: 600; font-size: 32px; letter-spacing: 0.02em; margin: 0 0 2rem 0; white-space: nowrap; display: inline-block;"

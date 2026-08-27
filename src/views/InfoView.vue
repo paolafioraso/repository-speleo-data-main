@@ -65,15 +65,14 @@
   box-sizing: border-box;
 }
 
-/* Allineato a sinistra come il menu, centrato sull'asse Y */
+/* Allineato a sinistra come il menu (24px), stessa altezza Y fissa usata in Archive per "Visual catalog..." */
 .info-layout {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   position: fixed;
-  left: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 24px;
+  top: 272px;
   width: auto;
 }
 

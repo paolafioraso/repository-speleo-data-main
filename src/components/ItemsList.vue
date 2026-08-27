@@ -94,8 +94,8 @@ h3:hover {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   grid-template-rows: repeat(2, auto);
-  column-gap: 8.5rem;
-  row-gap: 2.5rem;
+  column-gap: 10rem;
+  row-gap: 3.5rem;
   align-items: start;
   width: 100%;
   box-sizing: border-box;
