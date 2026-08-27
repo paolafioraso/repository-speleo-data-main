@@ -35,8 +35,8 @@ onMounted(() => {})
   <main v-if="route.name === 'map' || route.name === 'map-zoom'" style="position: fixed; inset: 0; z-index: 0;">
     <router-view />
   </main>
-  <!-- Condizione per la home: senza padding e max-width, allineata a sinistra. Margine sinistro ora gestito interamente da HomeView.vue -->
-<main v-else-if="route.name === 'home'" style="position: relative; z-index: 10; padding: 0;">
+  <!-- Condizione per la home: senza padding e max-width, allineata a sinistra. Margine sinistro gestito interamente da HomeView.vue -->
+  <main v-else-if="route.name === 'home'" style="position: relative; z-index: 10; padding: 0;">
     <router-view />
   </main>
   <!-- Per tutte le altre pagine (info, itemDetail, ecc.) -->
