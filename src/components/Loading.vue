@@ -1,11 +1,15 @@
 <template>
+  <!-- Overlay a schermo intero mostrato mentre global.loading è maggiore di 0
+       (vedi App.vue: <Loading v-if="global.loading > 0" />) -->
   <div class="flex items-center justify-center w-screen h-screen z-10">
+    <!-- Icona a forma di anello, ruotata di continuo tramite la classe "animate-spin" -->
     <svg
       class="animate-spin h-8 w-8 text-gray-600"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
     >
+      <!-- Cerchio di sfondo, semi-trasparente, dà la "traccia" statica dell'anello -->
       <circle
         class="opacity-25"
         cx="12"
@@ -14,6 +18,7 @@
         stroke="currentColor"
         stroke-width="4"
       ></circle>
+      <!-- Arco più opaco che, ruotando insieme all'intero SVG, crea l'effetto di caricamento -->
       <path
         class="opacity-75"
         fill="currentColor"
