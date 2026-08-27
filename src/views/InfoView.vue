@@ -1,14 +1,16 @@
 <script setup>
 // Pagina Info - Layout millimetrico ad alta fedeltà con spaziature dei titoli e dei paragrafi uniformate
+// Nessuna logica dinamica: tutto il contenuto (testo, crediti) è scritto direttamente nel template
 </script>
 
 <template>
   <div class="info-container">
     <main class="info-layout">
-      
+
+      <!-- Sezione "About": titolo a sinistra, due colonne di testo affiancate a destra -->
       <div class="about-group">
         <h2 class="info-title">About</h2>
-        
+
         <div class="about-paragraphs">
           <div class="text-block">
             <p>
@@ -30,9 +32,10 @@
         </div>
       </div>
 
+      <!-- Sezione "Credits": stessa struttura di About (titolo + testo), ma con un solo blocco -->
       <div class="credits-group">
         <h2 class="info-title">Credits</h2>
-        
+
         <div class="text-block credits-list">
           <p>
             <span class="credits-label">CAVING CLUBS:</span> Gruppo Speleologico Padovano CAI, Gruppo Grotte Treviso, Gruppo Grotte Schio CAI Belluno, Sociedade Espeleologica Azimute, Grupo Araras de Espeleologia, Sociedade Baiana de Espeleologia, Espeleo Grupo de Brasília, Espeleo Grupo Rio Claro, Federazione Speleologica Veneta, Commissione Centrale Speleologia e Torrentismo CAI.
@@ -45,6 +48,7 @@
 
     </main>
 
+    <!-- Firma in basso, stessa posizione/stile usati in Archive/Map/Map Zoom -->
     <div class="info-footer">
       <p>Speleo_Archive</p>
       <p>Designed by Paola Fioraso</p>
@@ -53,7 +57,7 @@
 </template>
 
 <style scoped>
-/* Sfondo a tutto schermo */
+/* Sfondo bianco a tutto schermo, fisso, sotto a tutto il resto */
 .info-container {
   width: 100vw;
   height: 100vh;
@@ -65,7 +69,9 @@
   box-sizing: border-box;
 }
 
-/* Allineato a sinistra come il menu (24px), stessa altezza Y fissa usata in Archive per "Visual catalog..." */
+/* Blocco principale (About + Credits): allineato a sinistra come il menu (24px).
+   top: 272px è un valore fisso pensato per coincidere con il margin-top usato
+   in Archive per "Visual catalog...", così le due pagine sono allineate verticalmente */
 .info-layout {
   display: flex;
   flex-direction: row;
@@ -76,16 +82,16 @@
   width: auto;
 }
 
-/* Struttura dei due macro-gruppi (About e Credits) */
+/* Struttura interna dei due macro-gruppi: titolo a sinistra, testo a destra, affiancati */
 .about-group,
 .credits-group {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 40px;
+  gap: 40px; /* spazio tra il titolo (es. "About") e il testo */
 }
 
-/* Contenitore specifico per affiancare i due paragrafi di About */
+/* Le due colonne di paragrafi dentro About, affiancate orizzontalmente */
 .about-paragraphs {
   display: flex;
   flex-direction: row;
@@ -93,12 +99,12 @@
   gap: 45px;
 }
 
-/* Distanza tra la sezione About e Credits */
+/* Distanza orizzontale tra il blocco About e il blocco Credits */
 .credits-group {
   margin-left: 320px;
 }
 
-/* Titoli delle sezioni (Jura) - stessa dimensione del menu (24px) */
+/* Titoli delle sezioni ("About", "Credits"): font Jura, stessa dimensione (24px) del menu principale */
 .info-title {
   font-family: 'Jura', sans-serif;
   font-weight: 400;
@@ -106,11 +112,12 @@
   color: #afafaf;
   margin: 0;
   line-height: 1.2;
-  flex-shrink: 0;
+  flex-shrink: 0; /* non si restringe mai, anche se il testo accanto è largo */
   width: 85px;
 }
 
-/* Blocchi di testo: 16px, larghezza ricalibrata su "CAVING CLUBS: Gruppo Speleologico" */
+/* Paragrafi di testo: font Aeonik 16px. Larghezza di 290px calibrata in modo che
+   "CAVING CLUBS: Gruppo Speleologico" occupi una riga sola prima di andare a capo */
 .text-block {
   width: 290px;
   flex-shrink: 0;
@@ -121,20 +128,22 @@
 }
 
 .text-block p {
-  margin: 0 0 32px 0;
+  margin: 0 0 32px 0; /* spazio tra un paragrafo e il successivo */
 }
 
 .text-block p:last-child {
-  margin-bottom: 0;
+  margin-bottom: 0; /* l'ultimo paragrafo non ha margine extra sotto */
 }
 
-/* Evidenziazioni in grigio chiaro - colore #afafaf */
+/* Parole/termini evidenziati nel testo (es. nomi propri, anni, parole chiave):
+   colore grigio chiaro invece del grigio scuro standard del testo */
 .highlight {
   color: #afafaf;
   font-weight: inherit;
 }
 
-/* Elenchi dei crediti: stessa larghezza e stessa dimensione delle colonne di About */
+/* Il blocco Credits eredita .text-block ma ne sovrascrive dimensione/larghezza
+   per restare identico visivamente ad About, pur avendo contenuto diverso */
 .credits-list {
   width: 290px;
   font-size: 16px;
@@ -146,7 +155,8 @@
   color: #afafaf;
 }
 
-/* Footer: stesso stile e posizione usati in Archive/Map/Map Zoom */
+/* Firma "Speleo_Archive / Designed by..." fissa in basso, centrata orizzontalmente:
+   stesso stile identico usato in HomeView.vue, MapView.vue e MapZoomView.vue */
 .info-footer {
   position: fixed;
   bottom: 2rem;

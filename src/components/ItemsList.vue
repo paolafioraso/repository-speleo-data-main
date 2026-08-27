@@ -5,6 +5,8 @@ import { onMounted, ref, computed } from 'vue'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../firebase.js'
 
+// showDetails controlla se mostrare titolo+descrizione sotto ogni foto.
+// Usato con false nella home (solo foto), true altrove se serve la versione completa
 const props = defineProps({
   showDetails: {
     type: Boolean,
@@ -14,9 +16,10 @@ const props = defineProps({
 
 const global = useGlobal()
 const router = useRouter()
-const items = ref([])
+const items = ref([]) // tutti gli item caricati da Firestore
 
-// Ordine esatto delle 10 foto in home, tramite id
+// Ordine esatto e fisso delle 10 foto mostrate in home, tramite id specifico
+// (non semplicemente le prime 10 trovate: questo elenco garantisce l'ordine voluto)
 const DESIRED_ORDER = [
   'lapa-dos-brejoes-1',
   'cachoeira-do-funil',
@@ -30,12 +33,16 @@ const DESIRED_ORDER = [
   'lapa-do-penhasco-1',
 ]
 
+// Ricostruisce l'elenco delle foto da mostrare seguendo l'ordine di DESIRED_ORDER,
+// cercando ciascun id dentro gli item caricati; .filter(Boolean) scarta eventuali
+// id non trovati (es. se un documento viene rimosso dal database)
 const visibleItems = computed(() => {
   return DESIRED_ORDER
     .map((id) => items.value.find((item) => item.id === id))
     .filter(Boolean)
 })
 
+// Carica tutti gli item dalla collezione "items" di Firestore
 async function loadItems() {
   global.loading++
   try {
@@ -49,6 +56,7 @@ async function loadItems() {
   }
 }
 
+// Cliccando una foto, naviga alla pagina di dettaglio di quella grotta
 function goToDetail(itemId) {
   router.push({ name: 'itemDetail', params: { id: itemId } })
 }
@@ -58,8 +66,11 @@ onMounted(loadItems)
 
 <template>
   <section class="w-full">
+    <!-- Nessuna foto ancora caricata: non mostra nulla (evita un flash di layout vuoto) -->
     <div v-if="visibleItems.length === 0" />
 
+    <!-- Griglia "a mosaico": ogni foto ha una posizione (pos-0...pos-9) con
+         dimensione e allineamento verticale specifici, definiti più sotto nel CSS -->
     <div v-else class="mosaic-grid">
       <article
         v-for="(item, index) in visibleItems"
@@ -76,6 +87,7 @@ onMounted(loadItems)
             class="mosaic-img transition duration-300"
           />
         </figure>
+        <!-- Titolo e descrizione: visibili solo quando showDetails è true -->
         <h3 v-if="showDetails" class="font-medium mt-2" style="color: #343434; transition: color 0.2s ease;" @mouseenter="$event.target.style.color = '#afafaf'" @mouseleave="$event.target.style.color = '#343434'">
           {{ item.title || item.id }}
         </h3>
@@ -90,6 +102,8 @@ h3:hover {
   color: #afafaf !important;
 }
 
+/* Griglia base: 5 colonne uguali, 2 righe. minmax(0, 1fr) invece di solo 1fr
+   evita che le colonne "spingano" oltre il contenitore quando il contenuto è largo */
 .mosaic-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -104,7 +118,7 @@ h3:hover {
 
 .mosaic-item {
   cursor: pointer;
-  min-width: 0;
+  min-width: 0; /* permette alla colonna di restringersi sotto la larghezza naturale dell'immagine */
 }
 
 .mosaic-figure {
@@ -116,9 +130,13 @@ h3:hover {
   display: block;
   width: 100%;
   max-width: 100%;
-  object-fit: cover;
+  object-fit: cover; /* ritaglia l'immagine per riempire lo spazio senza deformarla */
   border-radius: 0;
 }
+
+/* Ogni "pos-N" fissa la posizione nella griglia (colonna/riga) e il formato della foto:
+   le posizioni pari sono verticali (184/212), le dispari orizzontali (184/139).
+   Il margin-top alterna le foto per creare l'effetto "sfalsato" a mosaico */
 
 /* Riga 1 */
 .pos-0 { grid-column: 1; grid-row: 1; margin-top: 0; }

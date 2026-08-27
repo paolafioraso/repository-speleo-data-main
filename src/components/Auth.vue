@@ -8,23 +8,31 @@ import {
 import { auth, googleProvider, ensureUserAccount, getAccountByUid } from '../firebase.js'
 
 import { useGlobal } from '../composables/global.js'
-const global = useGlobal()
+const global = useGlobal() // stato globale condiviso in tutta l'app (es. loading, account utente)
 
+// Contiene l'utente Firebase attualmente loggato (null se nessuno ha fatto login)
 const user = ref(null)
 
+// Funzione per "disiscriversi" dall'ascolto dei cambi di stato dell'autenticazione,
+// verrà sovrascritta appena il listener viene creato in onMounted
 let unsubscribeAuth = () => {}
 
 onMounted(() => {
-  
+
+  // Ascolta in tempo reale i cambiamenti dello stato di login (login/logout/refresh pagina).
+  // Firebase chiama questa funzione automaticamente ogni volta che lo stato cambia.
   unsubscribeAuth = onAuthStateChanged(auth, async (u) => {
-    global.loading ++
+    global.loading ++ // mostra lo spinner/caricamento globale mentre si verifica lo stato utente
     user.value = u
     if (!u) {
+      // Nessun utente loggato: azzera l'account globale e chiudi il caricamento
       global.account = null
       global.loading --
       return
     }
     try {
+      // Utente loggato: assicura che esista un documento "account" per lui in Firestore
+      // (lo crea se è la prima volta), poi lo recupera per popolare lo stato globale
       await ensureUserAccount(u)
       global.account = await getAccountByUid(u.uid)
     } finally {
@@ -34,9 +42,11 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  // Ferma l'ascolto quando il componente viene distrutto, per evitare memory leak
   unsubscribeAuth()
 })
 
+// Avvia il login tramite popup di Google
 async function connectWithGoogle() {
   try {
     const { user: firebaseUser } = await signInWithPopup(auth, googleProvider)
@@ -44,9 +54,12 @@ async function connectWithGoogle() {
   } catch (err) {
     const code = err?.code
     if (code === 'auth/popup-closed-by-user') {
+      // L'utente ha chiuso il popup di Google senza completare il login: non è un vero errore,
+      // quindi lo logghiamo solo come informazione, senza mostrare nulla come "errore" all'utente
       console.info('[accounts] Google sign-in cancelled (popup closed)')
       return
     }
+    // Qualsiasi altro errore reale durante il login viene loggato in console per debug
     console.error('[accounts] connectWithGoogle failed', {
       code,
       message: err?.message,
@@ -55,6 +68,7 @@ async function connectWithGoogle() {
   }
 }
 
+// Effettua il logout dall'account Firebase corrente
 async function logout() {
   await firebaseSignOut(auth)
 }
@@ -65,6 +79,7 @@ async function logout() {
     class="w-full"
   >
     <div class="mx-auto flex items-center justify-end gap-3">
+      <!-- Nessun utente loggato: mostra il pulsante per accedere con Google -->
       <template v-if="!user">
         <button
           type="button"
@@ -77,6 +92,7 @@ async function logout() {
           Connect with Google
         </button>
       </template>
+      <!-- Utente loggato: mostra avatar, nome e pulsante di logout -->
       <template v-else>
         <div class="flex items-center gap-3">
           <img
