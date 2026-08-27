@@ -12,6 +12,13 @@ const item = ref(null)
 const relatedItems = ref([])
 const error = ref(null)
 
+// Id delle foto con sfondo chiaro: qui la X deve essere scura (#343434) invece che bianca
+const LIGHT_BACKGROUND_ITEMS = [
+  'toca-dos-ossos',
+]
+
+const isLightBackground = computed(() => LIGHT_BACKGROUND_ITEMS.includes(item.value?.id))
+
 function escapeHtml(text) {
 	const div = document.createElement('div')
 	div.textContent = text
@@ -65,7 +72,19 @@ onMounted(loadItem)
 <template>
 	<div class="fixed inset-0 z-50 bg-white flex">
 		<button
-			style="position: fixed; top: 1.5rem; right: 1.5rem; z-index: 60; background: none; border: none; cursor: pointer; font-size: 30px; color: #fff; font-family: 'Jura', sans-serif; font-weight: 700;"
+			:style="{
+				position: 'fixed',
+				top: '1.5rem',
+				right: '1.5rem',
+				zIndex: 60,
+				background: 'none',
+				border: 'none',
+				cursor: 'pointer',
+				fontSize: '30px',
+				color: isLightBackground ? '#343434' : '#fff',
+				fontFamily: 'Jura, sans-serif',
+				fontWeight: 700
+			}"
 			@click="router.back()"
 		>✕</button>
 
