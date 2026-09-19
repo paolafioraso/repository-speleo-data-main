@@ -1,5 +1,30 @@
-# Vue 3 + Vite
+# Speleo Archive
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Archivio fotografico digitale di documentazione speleologica, realizzato per catalogare e presentare fotografie di grotte esplorate durante le spedizioni del 2023 e 2025 in Brasile.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+## Tecnologie
+
+- Vue 3 + Vite
+- Vue Router
+- Firebase (autenticazione e database Firestore)
+- Google Maps JavaScript API
+- Tailwind CSS
+
+## Struttura del sito
+
+- **Archive**: galleria fotografica principale delle grotte documentate
+- **Map**: mappa interattiva con localizzazione geografica dei siti
+- **Info**: informazioni sul progetto e crediti
+
+## Sviluppo
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Build di produzione
+
+\`\`\`bash
+npm run build
+\`\`\`
