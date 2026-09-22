@@ -66,9 +66,6 @@ onMounted(() => {})
 </template>
 
 <style>
-/* Carica il font Jura (usato per titoli e nav) da Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Jura:wght@700&display=swap');
-
 /* Colore della voce di menu attiva (schiarito), applicato automaticamente
    da Vue Router quando active-class corrisponde alla pagina corrente */
 .nav-active { color: #afafaf !important; }
